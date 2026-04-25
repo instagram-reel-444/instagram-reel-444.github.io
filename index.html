@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧪 Lab Ciberseguridad - Fingerprinting Ético</title>
+    <title>🧪 Lab Ciberseguridad</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
             color: #c9d1d9;
             min-height: 100vh;
@@ -28,23 +24,10 @@
             max-width: 550px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
-        .emoji {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            filter: drop-shadow(0 0 10px #58a6ff);
-        }
-        h1 {
-            color: #58a6ff;
-            margin-bottom: 0.5rem;
-            font-size: 1.8rem;
-        }
-        .subtitle {
-            color: #8b949e;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-        }
+        .emoji { font-size: 4rem; margin-bottom: 1rem; }
+        h1 { color: #58a6ff; margin-bottom: 0.5rem; }
+        .subtitle { color: #8b949e; margin-bottom: 1.5rem; }
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -58,41 +41,23 @@
             padding: 12px;
             text-align: left;
         }
-        .info-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #8b949e;
-            margin-bottom: 4px;
-        }
-        .info-value {
-            font-family: 'SF Mono', 'Courier New', monospace;
-            font-size: 0.9rem;
-            word-break: break-word;
-            color: #e6edf3;
-        }
+        .info-label { font-size: 0.7rem; color: #8b949e; text-transform: uppercase; }
+        .info-value { font-family: monospace; font-size: 0.9rem; color: #e6edf3; word-break: break-word; }
         .status-container {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            margin-top: 1.2rem;
-            font-size: 0.85rem;
+            margin: 1rem 0;
         }
         .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             display: inline-block;
         }
-        .status-dot.connected {
-            background: #3fb950;
-            box-shadow: 0 0 8px #3fb950;
-        }
-        .status-dot.disconnected {
-            background: #f85149;
-            box-shadow: 0 0 8px #f85149;
-        }
+        .status-dot.online { background: #3fb950; box-shadow: 0 0 8px #3fb950; }
+        .status-dot.offline { background: #f85149; box-shadow: 0 0 8px #f85149; }
         .disclaimer {
             background: #1c2129;
             border: 1px solid #f0883e;
@@ -101,21 +66,6 @@
             border-radius: 8px;
             font-size: 0.75rem;
             margin-top: 1.5rem;
-        }
-        button {
-            background: transparent;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-top: 0.8rem;
-            transition: 0.2s;
-        }
-        button:hover {
-            background: #30363d;
-            color: white;
         }
     </style>
 </head>
@@ -127,7 +77,7 @@
 
         <div class="info-grid">
             <div class="info-item">
-                <div class="info-label">🌐 Tu IP pública</div>
+                <div class="info-label">🌐 Tu IP</div>
                 <div class="info-value" id="ipDisplay">Consultando...</div>
             </div>
             <div class="info-item">
@@ -135,7 +85,7 @@
                 <div class="info-value" id="browserDisplay">...</div>
             </div>
             <div class="info-item">
-                <div class="info-label">💻 Sistema Operativo</div>
+                <div class="info-label">💻 Sistema</div>
                 <div class="info-value" id="osDisplay">...</div>
             </div>
             <div class="info-item">
@@ -146,29 +96,50 @@
 
         <div class="status-container">
             <span class="status-dot" id="statusDot"></span>
-            <span id="statusText">Enviando datos...</span>
+            <span id="statusText">Conectando...</span>
         </div>
-        <button onclick="location.reload();">⟳ Reenviar datos</button>
 
         <div class="disclaimer">
-            ⚠️ Laboratorio ÉTICO. Los datos recolectados se almacenan localmente 
-            en un servidor controlado solo con fines educativos.
+            ⚠️ Laboratorio ÉTICO. Datos recolectados solo con fines educativos en entorno controlado.
         </div>
     </div>
 
     <script>
-        // =====================================================
-        // CONFIGURACIÓN: PON AQUÍ TU URL DE NGROK
-        // Ejemplo: 'https://abc123.ngrok-free.app'
-        // =====================================================
-        const SERVIDOR_URL = 'https://TU-URL-DE-NGROK.ngrok-free.app';  // ← CAMBIAR ESTO
+        // ============================================
+        // CONFIGURACIÓN: PON AQUÍ LA URL DE NGROK
+        // ============================================
+        const SERVIDOR_URL = 'https://TU-URL-DE-NGROK.ngrok-free.app';  // ← CAMBIAR
 
-        // =====================================================
-        // RECOLECCIÓN DE DATOS (Fingerprinting)
-        // =====================================================
+        // ============================================
+        // INDICADOR DE ESTADO DEL SERVIDOR
+        // ============================================
+        async function verificarEstadoServidor() {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            try {
+                const resp = await fetch(SERVIDOR_URL + '/health', { method: 'GET' });
+                if (resp.ok) {
+                    dot.className = 'status-dot online';
+                    text.textContent = 'Servidor conectado';
+                } else {
+                    throw new Error('Respuesta no OK');
+                }
+            } catch (e) {
+                dot.className = 'status-dot offline';
+                text.textContent = 'Sin conexión al servidor';
+            }
+        }
+
+        // Verificar cada 10 segundos
+        setInterval(verificarEstadoServidor, 10000);
+        // Verificar inmediatamente al cargar
+        verificarEstadoServidor();
+
+        // ============================================
+        // RECOLECCIÓN DE DATOS
+        // ============================================
         function recolectarDatos() {
-            const datos = {
-                // Pantalla
+            return {
                 pantalla: {
                     ancho: screen.width,
                     alto: screen.height,
@@ -176,150 +147,81 @@
                     profundidadColor: screen.colorDepth,
                     pixelRatio: window.devicePixelRatio || 1
                 },
-                // Navegador
                 userAgent: navigator.userAgent,
                 plataforma: navigator.platform || 'Desconocida',
-                idioma: navigator.language || 'Desconocido',
+                idioma: navigator.language,
                 idiomas: navigator.languages || [],
                 cookiesHabilitadas: navigator.cookieEnabled,
                 doNotTrack: navigator.doNotTrack || 'no enviado',
-                // Hardware
                 nucleosCPU: navigator.hardwareConcurrency || '?',
                 memoriaRAM: navigator.deviceMemory || '?',
                 puntosTactiles: navigator.maxTouchPoints || 0,
-                // Conexión
-                conexion: null
+                conexion: navigator.connection ? {
+                    tipo: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt
+                } : null,
+                zonaHoraria: Intl.DateTimeFormat().resolvedOptions().timeZone || '?',
+                timestamp: new Date().toISOString(),
+                canvasFingerprint: (() => {
+                    try {
+                        const c = document.createElement('canvas');
+                        const ctx = c.getContext('2d');
+                        c.width = 240; c.height = 60;
+                        ctx.fillStyle = '#f60'; ctx.fillRect(20,10,100,40);
+                        ctx.fillStyle = '#069'; ctx.font = 'bold 14px Arial';
+                        ctx.fillText('Lab 🧪', 30, 35);
+                        return c.toDataURL().length;
+                    } catch(e) { return 0; }
+                })()
             };
-
-            // Información de red (puede no estar disponible)
-            if (navigator.connection) {
-                datos.conexion = {
-                    tipo: navigator.connection.effectiveType || '?',
-                    downlink: navigator.connection.downlink || '?',
-                    rtt: navigator.connection.rtt || '?'
-                };
-            }
-
-            // Zona horaria
-            datos.zonaHoraria = Intl.DateTimeFormat().resolvedOptions().timeZone || '?';
-            
-            // Timestamp
-            datos.timestamp = new Date().toISOString();
-
-            // Canvas fingerprint (hash simple)
-            datos.canvasFingerprint = obtenerCanvasFP();
-
-            return datos;
         }
 
-        function obtenerCanvasFP() {
-            try {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = 240;
-                canvas.height = 60;
-                
-                // Dibujar formas y texto
-                ctx.fillStyle = '#f60';
-                ctx.fillRect(20, 10, 100, 40);
-                ctx.fillStyle = '#069';
-                ctx.font = 'bold 14px Arial, sans-serif';
-                ctx.fillText('Lab Etico 🧪', 30, 35);
-                ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
-                ctx.fillRect(140, 20, 60, 25);
-                
-                // Obtener data URL y devolver longitud como hash aproximado
-                const dataURL = canvas.toDataURL();
-                return dataURL.length;
-            } catch (e) {
-                return 0;
-            }
-        }
-
-        // =====================================================
-        // ENVÍO DE DATOS AL SERVIDOR
-        // =====================================================
         async function enviarDatos() {
             const datos = recolectarDatos();
-            let exito = false;
-
             try {
-                const respuesta = await fetch(SERVIDOR_URL, {
+                const resp = await fetch(SERVIDOR_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(datos)
                 });
-
-                if (respuesta.ok) {
-                    exito = true;
-                    console.log('✅ Datos enviados correctamente');
-                } else {
-                    console.warn('⚠️ El servidor respondió con estado:', respuesta.status);
-                }
-            } catch (error) {
-                console.error('❌ Error de conexión con el servidor:', error.message);
-            }
-
-            actualizarEstado(exito);
-        }
-
-        function actualizarEstado(exito) {
-            const dot = document.getElementById('statusDot');
-            const text = document.getElementById('statusText');
-
-            dot.className = 'status-dot ' + (exito ? 'connected' : 'disconnected');
-            text.textContent = exito ? 'Datos enviados correctamente' : 'Servidor no accesible';
-        }
-
-        // =====================================================
-        // MOSTRAR INFORMACIÓN LOCAL EN LA PÁGINA
-        // =====================================================
-        function mostrarInfoLocal() {
-            // Navegador (últimas palabras del UA)
-            const ua = navigator.userAgent;
-            const partesUA = ua.split(' ');
-            const resumenUA = partesUA.slice(-2).join(' ') || ua;
-            document.getElementById('browserDisplay').textContent = resumenUA;
-
-            // Sistema operativo
-            document.getElementById('osDisplay').textContent = navigator.platform || 'Desconocido';
-
-            // Resolución
-            document.getElementById('screenDisplay').textContent = 
-                `${screen.width}x${screen.height} @ ${window.devicePixelRatio}x`;
-        }
-
-        // Obtener IP pública usando servicio externo (ipify)
-        async function obtenerIPPublica() {
-            const elem = document.getElementById('ipDisplay');
-            try {
-                const resp = await fetch('https://api.ipify.org?format=json');
-                if (resp.ok) {
-                    const data = await resp.json();
-                    elem.textContent = data.ip;
-                } else {
-                    elem.textContent = 'No disponible';
-                }
+                const resultado = await resp.json();
+                console.log('Respuesta del servidor:', resultado);
             } catch (e) {
-                elem.textContent = 'Error';
+                console.error('Error enviando datos:', e);
             }
         }
 
-        // =====================================================
-        // INICIALIZACIÓN
-        // =====================================================
+        // ============================================
+        // MOSTRAR INFO LOCAL
+        // ============================================
+        function mostrarInfo() {
+            document.getElementById('browserDisplay').textContent = navigator.userAgent.split(' ').slice(-2).join(' ') || '?';
+            document.getElementById('osDisplay').textContent = navigator.platform || '?';
+            document.getElementById('screenDisplay').textContent = `${screen.width}x${screen.height} @ ${window.devicePixelRatio}x`;
+        }
+        async function obtenerIP() {
+            try {
+                const r = await fetch('https://api.ipify.org?format=json');
+                const d = await r.json();
+                document.getElementById('ipDisplay').textContent = d.ip;
+            } catch(e) {
+                document.getElementById('ipDisplay').textContent = 'No disponible';
+            }
+        }
+
+        // ============================================
+        // INICIO
+        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
-            mostrarInfoLocal();
-            obtenerIPPublica();
+            mostrarInfo();
+            obtenerIP();
             enviarDatos();
         });
 
-        // Verificar si se ha configurado la URL
+        // Aviso si no se configuró la URL
         if (SERVIDOR_URL.includes('https://b035-170-83-127-11.ngrok-free.app -> http://localhost:8080')) {
-            console.warn('⚠️ No has configurado la URL de Ngrok. Actualiza la variable SERVIDOR_URL.');
+            console.warn('⚠️ Configura SERVIDOR_URL con la URL de Ngrok.');
         }
     </script>
 </body>
